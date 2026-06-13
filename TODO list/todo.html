@@ -1,0 +1,117 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Todo List - Productive Clarity</title>
+<!-- Inter Font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS with Design System 3 Integration -->
+ <link rel="stylesheet" href="todo.css">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        surface: '#f7f9fb',
+                        'surface-container': '#ffffff',
+                        primary: '#2563eb',
+                        'primary-hover': '#1d4ed8',
+                        danger: '#ef4444',
+                        'danger-hover': '#dc2626'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'custom': '8px',
+                    }
+                }
+            }
+        }
+    </script>
+
+</head>
+<body>
+<div class="app-container">
+<div id="nav">
+<h1 id="header" class="">Todo lists</h1>
+</div>
+<div class="nav-1">
+<input id="inputfield" placeholder="What needs to be done?" type="text">
+<button class="btn">Add Todo</button>
+</div>
+<div class="todolistsElem min-h-[20px] mt-4"></div>
+</div>
+<script >
+    const mainTodoElem = document.querySelector(".todolistsElem");
+        const inputValue = document.getElementById("inputfield");
+
+        const getTodoListFromLocal = () => {
+            return JSON.parse(localStorage.getItem("youtubeTodolists"));
+        };
+
+        const addTodolistLocalStorage = (localTodolists) => {
+            return localStorage.setItem("youtubeTodolists",JSON.stringify(localTodolists));
+        }
+        
+        let localTodolists = getTodoListFromLocal() || [];
+
+        const addTodoDynamicElement = (curElem) => {
+            const divElement = document.createElement('div');
+            divElement.classList.add("main_todo_div");
+            divElement.innerHTML = `<li>${curElem}</li> <button class="deletebtn">Delete</button>`;
+            mainTodoElem.append(divElement);
+        }
+        
+        const addTodolists = () => {
+            const todolistsValue = inputValue.value.trim();
+            inputValue.value = "";
+
+            if( todolistsValue !== "" && !localTodolists.includes(todolistsValue)){
+                localTodolists.push(todolistsValue);
+                localTodolists = [...new Set(localTodolists)];
+                localStorage.setItem("youtubeTodolists", JSON.stringify(localTodolists));
+                addTodoDynamicElement(todolistsValue);
+            }
+        };
+
+        const showTodoLists = () => {
+            localTodolists.forEach((curElem) => {
+                addTodoDynamicElement(curElem);
+            })
+        };
+
+        showTodoLists();
+
+        const removeTodo = (e) => {
+            const todoToRemove = e.target;
+            let todolistsContent = todoToRemove.previousElementSibling.innerText;
+            let parentElem = todoToRemove.parentElement;
+
+            localTodolists = localTodolists.filter((curTodo) => {
+                return curTodo !== todolistsContent;
+            });
+
+            addTodolistLocalStorage(localTodolists);
+            parentElem.remove();
+        }
+
+        mainTodoElem.addEventListener("click", (e) => {
+            if(e.target.classList.contains("deletebtn")){
+                removeTodo(e);
+            }
+        });
+
+        document.querySelector(".btn").addEventListener('click',() => {
+            addTodolists();
+        });
+
+        // Add support for "Enter" key in input field
+        inputValue.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addTodolists();
+            }
+        });
+</script>
+
+</body></html>
